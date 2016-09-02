@@ -23,12 +23,15 @@ namespace RL\PhpMathPublisher;
 class MathExpression extends Expression
 {
     /**
-     * @var array
+     * @var Expression[]|MathExpression[]|string
      */
     public $nodes;
 
     /**
      * Constructor
+     *
+     * @param Expression[] $exp
+     * @param Helper $helper
      */
     public function __construct($exp, $helper)
     {
@@ -269,17 +272,12 @@ class MathExpression extends Expression
      */
     public function drawExpression($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $width = 1;
-        $height = 1;
+        //$height is calculated from $top and $bottom below
         $top = 1;
         $bottom = 1;
+        $img = array();
+        $base = array();
         for ($i = 0; $i < count($this->nodes); $i++) {
             if ($this->nodes[$i]->text != '(' && $this->nodes[$i]->text != ')') {
                 $this->nodes[$i]->draw($size);
@@ -307,17 +305,13 @@ class MathExpression extends Expression
             $width += imagesx($img[$i]);
         }
         $this->verticalBased = $top;
-        $result = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($result, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($result, $white);
-        }
-        ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
+        $result = imagecreate(max($width, 1), max($height, 1));
+        $white = $this->helper->getBackColor($result);
+        imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
         $pos = 0;
         for ($i = 0; $i < count($img); $i++) {
             if (isset($img[$i])) {
-                ImageCopy($result, $img[$i], $pos, $top - $base[$i], 0, 0, imagesx($img[$i]), imagesy($img[$i]));
+                imagecopy($result, $img[$i], $pos, $top - $base[$i], 0, 0, imagesx($img[$i]), imagesy($img[$i]));
                 $pos += imagesx($img[$i]);
             }
         }
@@ -329,36 +323,24 @@ class MathExpression extends Expression
      */
     public function drawFraction($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[0]->draw($size * 0.9);
         $img1 = $this->nodes[0]->image;
-        $base1 = $this->nodes[0]->verticalBased;
         $this->nodes[2]->draw($size * 0.9);
         $img2 = $this->nodes[2]->image;
-        $base2 = $this->nodes[2]->verticalBased;
         $height1 = imagesy($img1);
         $height2 = imagesy($img2);
         $width1 = imagesx($img1);
         $width2 = imagesx($img2);
         $width = max($width1, $width2);
         $height = $height1 + $height2 + 4;
-        $result = ImageCreate(max($width + 5, 1), max($height, 1));
-        $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($result, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($result, $white);
-        }
+        $result = imagecreate(max($width + 5, 1), max($height, 1));
+        $black = $this->helper->getFontColor($result);
+        $white = $this->helper->getBackColor($result);
         $this->verticalBased = $height1 + 2;
-        ImageFilledRectangle($result, 0, 0, $width + 4, $height - 1, $white);
-        ImageCopy($result, $img1, ($width - $width1) / 2, 0, 0, 0, $width1, $height1);
+        imagefilledrectangle($result, 0, 0, $width + 4, $height - 1, $white);
+        imagecopy($result, $img1, ($width - $width1) / 2, 0, 0, 0, $width1, $height1);
         imageline($result, 0, $this->verticalBased, $width, $this->verticalBased, $black);
-        ImageCopy($result, $img2, ($width - $width2) / 2, $height1 + 4, 0, 0, $width2, $height2);
+        imagecopy($result, $img2, ($width - $width2) / 2, $height1 + 4, 0, 0, $width2, $height2);
         $this->image = $result;
     }
 
@@ -367,19 +349,11 @@ class MathExpression extends Expression
      */
     public function drawExponent($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[0]->draw($size);
         $img1 = $this->nodes[0]->image;
         $base1 = $this->nodes[0]->verticalBased;
         $this->nodes[2]->draw($size * 0.8);
         $img2 = $this->nodes[2]->image;
-        $base2 = $this->nodes[2]->verticalBased;
         $height1 = imagesy($img1);
         $height2 = imagesy($img2);
         $width1 = imagesx($img1);
@@ -388,27 +362,19 @@ class MathExpression extends Expression
         if ($height1 >= $height2) {
             $height = ceil($height2 / 2 + $height1);
             $this->verticalBased = $height2 / 2 + $base1;
-            $result = ImageCreate(max($width, 1), max($height, 1));
-            $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-            $white = ImageColorAllocate($result, $backR, $backG, $backB);
-            if ($transparent) {
-                $white = imagecolortransparent($result, $white);
-            }
-            ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
-            ImageCopy($result, $img1, 0, ceil($height2 / 2), 0, 0, $width1, $height1);
-            ImageCopy($result, $img2, $width1, 0, 0, 0, $width2, $height2);
+            $result = imagecreate(max($width, 1), max($height, 1));
+            $white = $this->helper->getBackColor($result);
+            imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
+            imagecopy($result, $img1, 0, ceil($height2 / 2), 0, 0, $width1, $height1);
+            imagecopy($result, $img2, $width1, 0, 0, 0, $width2, $height2);
         } else {
             $height = ceil($height1 / 2 + $height2);
             $this->verticalBased = $height2 - $base1 + $height1 / 2;
-            $result = ImageCreate(max($width, 1), max($height, 1));
-            $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-            $white = ImageColorAllocate($result, $backR, $backG, $backB);
-            if ($transparent) {
-                $white = imagecolortransparent($result, $white);
-            }
-            ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
-            ImageCopy($result, $img1, 0, ceil($height2 - $height1 / 2), 0, 0, $width1, $height1);
-            ImageCopy($result, $img2, $width1, 0, 0, 0, $width2, $height2);
+            $result = imagecreate(max($width, 1), max($height, 1));
+            $white = $this->helper->getBackColor($result);
+            imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
+            imagecopy($result, $img1, 0, ceil($height2 - $height1 / 2), 0, 0, $width1, $height1);
+            imagecopy($result, $img2, $width1, 0, 0, 0, $width2, $height2);
         }
         $this->image = $result;
     }
@@ -418,19 +384,11 @@ class MathExpression extends Expression
      */
     public function drawIndex($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[0]->draw($size);
         $img1 = $this->nodes[0]->image;
         $base1 = $this->nodes[0]->verticalBased;
         $this->nodes[2]->draw($size * 0.8);
         $img2 = $this->nodes[2]->image;
-        $base2 = $this->nodes[2]->verticalBased;
         $height1 = imagesy($img1);
         $height2 = imagesy($img2);
         $width1 = imagesx($img1);
@@ -439,27 +397,19 @@ class MathExpression extends Expression
         if ($height1 >= $height2) {
             $height = ceil($height2 / 2 + $height1);
             $this->verticalBased = $base1;
-            $result = ImageCreate(max($width, 1), max($height, 1));
-            $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-            $white = ImageColorAllocate($result, $backR, $backG, $backB);
-            if ($transparent) {
-                $white = imagecolortransparent($result, $white);
-            }
-            ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
-            ImageCopy($result, $img1, 0, 0, 0, 0, $width1, $height1);
-            ImageCopy($result, $img2, $width1, ceil($height1 - $height2 / 2), 0, 0, $width2, $height2);
+            $result = imagecreate(max($width, 1), max($height, 1));
+            $white = $this->helper->getBackColor($result);
+            imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
+            imagecopy($result, $img1, 0, 0, 0, 0, $width1, $height1);
+            imagecopy($result, $img2, $width1, ceil($height1 - $height2 / 2), 0, 0, $width2, $height2);
         } else {
             $height = ceil($height1 / 2 + $height2);
             $this->verticalBased = $base1;
-            $result = ImageCreate(max($width, 1), max($height, 1));
-            $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-            $white = ImageColorAllocate($result, $backR, $backG, $backB);
-            if ($transparent) {
-                $white = imagecolortransparent($result, $white);
-            }
-            ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
-            ImageCopy($result, $img1, 0, 0, 0, 0, $width1, $height1);
-            ImageCopy($result, $img2, $width1, ceil($height1 / 2), 0, 0, $width2, $height2);
+            $result = imagecreate(max($width, 1), max($height, 1));
+            $white = $this->helper->getBackColor($result);
+            imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
+            imagecopy($result, $img1, 0, 0, 0, 0, $width1, $height1);
+            imagecopy($result, $img2, $width1, ceil($height1 / 2), 0, 0, $width2, $height2);
         }
         $this->image = $result;
     }
@@ -469,13 +419,6 @@ class MathExpression extends Expression
      */
     public function drawSqrt($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[1]->draw($size);
         $imgExp = $this->nodes[1]->image;
         $baseExp = $this->nodes[1]->verticalBased;
@@ -485,19 +428,15 @@ class MathExpression extends Expression
         $imgrac = $this->helper->displaySymbol("_racine", $heightExp + 2);
         $widthrac = imagesx($imgrac);
         $heightrac = imagesy($imgrac);
-        $baserac = $heightrac / 2;
 
         $width = $widthrac + $widthExp;
         $height = max($heightExp, $heightrac);
-        $result = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($result, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($result, $white);
-        }
-        ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($result, $imgrac, 0, 0, 0, 0, $widthrac, $heightrac);
-        ImageCopy($result, $imgExp, $widthrac, $height - $heightExp, 0, 0, $widthExp, $heightExp);
+        $result = imagecreate(max($width, 1), max($height, 1));
+        $black = $this->helper->getFontColor($result);
+        $white = $this->helper->getBackColor($result);
+        imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($result, $imgrac, 0, 0, 0, 0, $widthrac, $heightrac);
+        imagecopy($result, $imgExp, $widthrac, $height - $heightExp, 0, 0, $widthExp, $heightExp);
         imagesetthickness($result, 1);
         imageline($result, $widthrac - 2, 2, $widthrac + $widthExp + 2, 2, $black);
         $this->verticalBased = $height - $heightExp + $baseExp;
@@ -509,16 +448,8 @@ class MathExpression extends Expression
      */
     public function drawRoot($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[1]->draw($size * 0.6);
         $imgRoot = $this->nodes[1]->image;
-        $baseRoot = $this->nodes[1]->verticalBased;
         $widthRoot = imagesx($imgRoot);
         $heightRoot = imagesy($imgRoot);
 
@@ -531,22 +462,18 @@ class MathExpression extends Expression
         $imgRac = $this->helper->displaySymbol("_racine", $heightExp + 2);
         $widthRac = imagesx($imgRac);
         $heightRac = imagesy($imgRac);
-        $baseRac = $heightRac / 2;
 
         $width = $widthRac + $widthExp;
         $height = max($heightExp, $heightRac);
-        $result = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($result, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($result, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($result, $white);
-        }
-        ImageFilledRectangle($result, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($result, $imgRac, 0, 0, 0, 0, $widthRac, $heightRac);
-        ImageCopy($result, $imgExp, $widthRac, $height - $heightExp, 0, 0, $widthExp, $heightExp);
+        $result = imagecreate(max($width, 1), max($height, 1));
+        $black = $this->helper->getFontColor($result);
+        $white = $this->helper->getBackColor($result);
+        imagefilledrectangle($result, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($result, $imgRac, 0, 0, 0, 0, $widthRac, $heightRac);
+        imagecopy($result, $imgExp, $widthRac, $height - $heightExp, 0, 0, $widthExp, $heightExp);
         imagesetthickness($result, 1);
         imageline($result, $widthRac - 2, 2, $widthRac + $widthExp + 2, 2, $black);
-        ImageCopy($result, $imgRoot, 0, 0, 0, 0, $widthRoot, $heightRoot);
+        imagecopy($result, $imgRoot, 0, 0, 0, 0, $widthRoot, $heightRoot);
         $this->verticalBased = $height - $heightExp + $baseExp;
         $this->image = $result;
     }
@@ -557,19 +484,10 @@ class MathExpression extends Expression
      */
     public function drawLargestOperator($size, $character)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[1]->draw($size * 0.8);
         $img1 = $this->nodes[1]->image;
-        $base1 = $this->nodes[1]->verticalBased;
         $this->nodes[2]->draw($size * 0.8);
         $img2 = $this->nodes[2]->image;
-        $base2 = $this->nodes[2]->verticalBased;
         $this->nodes[3]->draw($size);
         $imgExp = $this->nodes[3]->image;
         $baseExp = $this->nodes[3]->verticalBased;
@@ -579,9 +497,6 @@ class MathExpression extends Expression
         //bornesup
         $width2 = imagesx($img2);
         $height2 = imagesy($img2);
-        //expression
-        $heightExp = imagesy($imgExp);
-        $widthExp = imagesx($imgExp);
         //character
         $imgSymbol = $this->helper->displaySymbol($character, $baseExp * 1.8); //max($baseExp,$heightExp-$baseExp)*2);
         $widthSymbol = imagesx($imgSymbol);
@@ -590,17 +505,13 @@ class MathExpression extends Expression
 
         $heightLeft = $heightSymbol + $height1 + $height2;
         $widthLeft = max($widthSymbol, $width1, $width2);
-        $imgLeft = ImageCreate(max($widthLeft, 1), max($heightLeft, 1));
-        $black = ImageColorAllocate($imgLeft, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgLeft, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgLeft, $white);
-        }
-        ImageFilledRectangle($imgLeft, 0, 0, $widthLeft - 1, $heightLeft - 1, $white);
-        ImageCopy($imgLeft, $imgSymbol, ($widthLeft - $widthSymbol) / 2, $height2, 0, 0, $widthSymbol, $heightSymbol);
-        ImageCopy($imgLeft, $img2, ($widthLeft - $width2) / 2, 0, 0, 0, $width2, $height2);
-        ImageCopy($imgLeft, $img1, ($widthLeft - $width1) / 2, $height2 + $heightSymbol, 0, 0, $width1, $height1);
-        $imgFin = $this->helper->alinement2($imgLeft, $baseSymbol + $height2, $imgExp, $baseExp);
+        $imgLeft = imagecreate(max($widthLeft, 1), max($heightLeft, 1));
+        $white = $this->helper->getBackColor($imgLeft);
+        imagefilledrectangle($imgLeft, 0, 0, $widthLeft - 1, $heightLeft - 1, $white);
+        imagecopy($imgLeft, $imgSymbol, ($widthLeft - $widthSymbol) / 2, $height2, 0, 0, $widthSymbol, $heightSymbol);
+        imagecopy($imgLeft, $img2, ($widthLeft - $width2) / 2, 0, 0, 0, $width2, $height2);
+        imagecopy($imgLeft, $img1, ($widthLeft - $width1) / 2, $height2 + $heightSymbol, 0, 0, $width1, $height1);
+        $imgFin = $this->helper->alignment2($imgLeft, $baseSymbol + $height2, $imgExp, $baseExp);
         $this->image = $imgFin;
         $this->verticalBased = max($baseSymbol + $height2, $baseExp + $height2);
     }
@@ -610,16 +521,8 @@ class MathExpression extends Expression
      */
     public function drawTop($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[2]->draw($size * 0.8);
         $imgSup = $this->nodes[2]->image;
-        $baseSup = $this->nodes[2]->verticalBased;
         $this->nodes[0]->draw($size);
         $imgExp = $this->nodes[0]->image;
         $baseExp = $this->nodes[0]->verticalBased;
@@ -632,15 +535,11 @@ class MathExpression extends Expression
         //fin
         $height = $heightExp + $heightSup;
         $width = max($widthSup, $widthExp) + ceil($size / 8);
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($imgFin, $imgSup, ($width - $widthSup) / 2, 0, 0, 0, $widthSup, $heightSup);
-        ImageCopy($imgFin, $imgExp, ($width - $widthExp) / 2, $heightSup, 0, 0, $widthExp, $heightExp);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($imgFin, $imgSup, ($width - $widthSup) / 2, 0, 0, 0, $widthSup, $heightSup);
+        imagecopy($imgFin, $imgExp, ($width - $widthExp) / 2, $heightSup, 0, 0, $widthExp, $heightExp);
         $this->image = $imgFin;
         $this->verticalBased = $baseExp + $heightSup;
     }
@@ -650,16 +549,8 @@ class MathExpression extends Expression
      */
     public function draw_bottom($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $this->nodes[2]->draw($size * 0.8);
         $imgInf = $this->nodes[2]->image;
-        $baseInf = $this->nodes[2]->verticalBased;
         $this->nodes[0]->draw($size);
         $imgExp = $this->nodes[0]->image;
         $baseExp = $this->nodes[0]->verticalBased;
@@ -672,15 +563,11 @@ class MathExpression extends Expression
         //fin
         $height = $heightExp + $heightInf;
         $width = max($widthInf, $widthExp) + ceil($size / 8);
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($imgFin, $imgExp, ($width - $widthExp) / 2, 0, 0, 0, $widthExp, $heightExp);
-        ImageCopy($imgFin, $imgInf, ($width - $widthInf) / 2, $heightExp, 0, 0, $widthInf, $heightInf);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($imgFin, $imgExp, ($width - $widthExp) / 2, 0, 0, 0, $widthExp, $heightExp);
+        imagecopy($imgFin, $imgInf, ($width - $widthInf) / 2, $heightExp, 0, 0, $widthInf, $heightInf);
         $this->image = $imgFin;
         $this->verticalBased = $baseExp;
     }
@@ -690,18 +577,17 @@ class MathExpression extends Expression
      */
     public function drawMatrix($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $padding = 8;
         $nbLine = $this->nodes[1]->nodes[0]->text;
         $nbColumn = $this->nodes[2]->nodes[0]->text;
-        $widthCase = 0;
-        $heightCase = 0;
+
+        $topLine = array();
+        $heightLine = array();
+        $widthColumn = array();
+        $img = array();
+        $height = array();
+        $width = array();
+        $base = array();
 
         for ($line = 0; $line < $nbLine; $line++) {
             $heightLine[$line] = 0;
@@ -737,20 +623,16 @@ class MathExpression extends Expression
         }
         $heightFin -= $padding;
         $widthFin -= $padding;
-        $imgFin = ImageCreate(max($widthFin, 1), max($heightFin, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $widthFin - 1, $heightFin - 1, $white);
+        $imgFin = imagecreate(max($widthFin, 1), max($heightFin, 1));
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $widthFin - 1, $heightFin - 1, $white);
         $i = 0;
         $h = $padding / 2 - 1;
         for ($line = 0; $line < $nbLine; $line++) {
             $l = $padding / 2 - 1;
             for ($col = 0; $col < $nbColumn; $col++) {
                 if ($i < count($this->nodes[3]->nodes)) {
-                    ImageCopy(
+                    imagecopy(
                         $imgFin,
                         $img[$i],
                         $l + ceil($widthColumn[$col] - $width[$i]) / 2,
@@ -777,20 +659,19 @@ class MathExpression extends Expression
      */
     public function drawTable($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $padding = 8;
         $typeLine = $this->nodes[1]->nodes[0]->text;
         $typeColumn = $this->nodes[2]->nodes[0]->text;
         $nbLine = strlen($typeLine) - 1;
         $nbColumn = strlen($typeColumn) - 1;
-        $widthCase = 0;
-        $heightCase = 0;
+
+        $topLine = array();
+        $heightLine = array();
+        $widthColumn = array();
+        $img = array();
+        $width = array();
+        $height = array();
+        $base = array();
 
         for ($line = 0; $line < $nbLine; $line++) {
             $heightLine[$line] = 0;
@@ -824,26 +705,23 @@ class MathExpression extends Expression
         for ($col = 0; $col < $nbColumn; $col++) {
             $widthFin += $widthColumn[$col] + $padding;
         }
-        $imgFin = ImageCreate(max($widthFin, 1), max($heightFin, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $widthFin - 1, $heightFin - 1, $white);
+        $imgFin = imagecreate(max($widthFin, 1), max($heightFin, 1));
+        $black = $this->helper->getFontColor($imgFin);
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $widthFin - 1, $heightFin - 1, $white);
         $i = 0;
         $h = $padding / 2 - 1;
         if (substr($typeLine, 0, 1) == "1") {
-            ImageLine($imgFin, 0, 0, $widthFin - 1, 0, $black);
+            imageline($imgFin, 0, 0, $widthFin - 1, 0, $black);
         }
         for ($line = 0; $line < $nbLine; $line++) {
             $l = $padding / 2 - 1;
             if (substr($typeColumn, 0, 1) == "1") {
-                ImageLine($imgFin, 0, $h - $padding / 2, 0, $h + $heightLine[$line] + $padding / 2, $black);
+                imageline($imgFin, 0, $h - $padding / 2, 0, $h + $heightLine[$line] + $padding / 2, $black);
             }
             for ($col = 0; $col < $nbColumn; $col++) {
                 if ($i < count($this->nodes[3]->nodes)) {
-                    ImageCopy(
+                    imagecopy(
                         $imgFin,
                         $img[$i],
                         $l + ceil($widthColumn[$col] - $width[$i]) / 2,
@@ -854,7 +732,7 @@ class MathExpression extends Expression
                         $height[$i]
                     );
                     if (substr($typeColumn, $col + 1, 1) == "1") {
-                        ImageLine(
+                        imageline(
                             $imgFin,
                             $l + $widthColumn[$col] + $padding / 2,
                             $h - $padding / 2,
@@ -868,7 +746,7 @@ class MathExpression extends Expression
                 $i++;
             }
             if (substr($typeLine, $line + 1, 1) == "1") {
-                ImageLine(
+                imageline(
                     $imgFin,
                     0,
                     $h + $heightLine[$line] + $padding / 2,
@@ -888,13 +766,6 @@ class MathExpression extends Expression
      */
     public function drawVector($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         //expression
         $this->nodes[1]->draw($size);
         $imgExp = $this->nodes[1]->image;
@@ -908,17 +779,14 @@ class MathExpression extends Expression
         //fin
         $height = $heightExp + $heightSup;
         $width = $widthExp;
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($imgFin, $imgSup, $width - 6, 0, $widthSup - 6, 0, $widthSup, $heightSup);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $black = $this->helper->getFontColor($imgFin);
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($imgFin, $imgSup, $width - 6, 0, $widthSup - 6, 0, $widthSup, $heightSup);
         imagesetthickness($imgFin, 1);
         imageline($imgFin, 0, 6, $width - 4, 6, $black);
-        ImageCopy($imgFin, $imgExp, ($width - $widthExp) / 2, $heightSup, 0, 0, $widthExp, $heightExp);
+        imagecopy($imgFin, $imgExp, ($width - $widthExp) / 2, $heightSup, 0, 0, $widthExp, $heightExp);
         $this->image = $imgFin;
         $this->verticalBased = $baseExp + $heightSup;
     }
@@ -928,13 +796,6 @@ class MathExpression extends Expression
      */
     public function drawOverLine($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         //expression
         $this->nodes[1]->draw($size);
         $imgExp = $this->nodes[1]->image;
@@ -944,16 +805,13 @@ class MathExpression extends Expression
 
         $height = $heightExp + 2;
         $width = $widthExp;
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $black = $this->helper->getFontColor($imgFin);
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
         imagesetthickness($imgFin, 1);
         imageline($imgFin, 0, 1, $width, 1, $black);
-        ImageCopy($imgFin, $imgExp, 0, 2, 0, 0, $widthExp, $heightExp);
+        imagecopy($imgFin, $imgExp, 0, 2, 0, 0, $widthExp, $heightExp);
         $this->image = $imgFin;
         $this->verticalBased = $baseExp + 2;
     }
@@ -963,13 +821,6 @@ class MathExpression extends Expression
      */
     public function drawUnderline($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         //expression
         $this->nodes[1]->draw($size);
         $imgExp = $this->nodes[1]->image;
@@ -979,16 +830,13 @@ class MathExpression extends Expression
 
         $height = $heightExp + 2;
         $width = $widthExp;
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $black = $this->helper->getFontColor($imgFin);
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
         imagesetthickness($imgFin, 1);
         imageline($imgFin, 0, $heightExp + 1, $width, $heightExp + 1, $black);
-        ImageCopy($imgFin, $imgExp, 0, 0, 0, 0, $widthExp, $heightExp);
+        imagecopy($imgFin, $imgExp, 0, 0, 0, 0, $widthExp, $heightExp);
         $this->image = $imgFin;
         $this->verticalBased = $baseExp;
     }
@@ -998,13 +846,6 @@ class MathExpression extends Expression
      */
     public function drawHat($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
         $imgSup = $this->helper->displaySymbol("_hat", $size);
 
         $this->nodes[1]->draw($size);
@@ -1019,15 +860,11 @@ class MathExpression extends Expression
         //fin
         $height = $heightExp + $heightSup;
         $width = max($widthSup, $widthExp) + ceil($size / 8);
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($imgFin, $imgSup, ($width - $widthSup) / 2, 0, 0, 0, $widthSup, $heightSup);
-        ImageCopy($imgFin, $imgExp, ($width - $widthExp) / 2, $heightSup, 0, 0, $widthExp, $heightExp);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($imgFin, $imgSup, ($width - $widthSup) / 2, 0, 0, 0, $widthSup, $heightSup);
+        imagecopy($imgFin, $imgExp, ($width - $widthExp) / 2, $heightSup, 0, 0, $widthExp, $heightExp);
         $this->image = $imgFin;
         $this->verticalBased = $baseExp + $heightSup;
     }
@@ -1037,43 +874,29 @@ class MathExpression extends Expression
      */
     public function drawLimit($size)
     {
-        $backR = $this->helper->getBackR();
-        $backG = $this->helper->getBackG();
-        $backB = $this->helper->getBackB();
-        $fontR = $this->helper->getFontR();
-        $fontG = $this->helper->getFontG();
-        $fontB = $this->helper->getFontB();
-        $transparent = $this->helper->getTransparent();
-        $imgLim = $this->helper->affiche_math("_lim", $size);
+        $imgLim = $this->helper->displayMath("_lim", $size);
         $widthLim = imagesx($imgLim);
         $heightLim = imagesy($imgLim);
         $baseLim = $heightLim / 2;
 
         $this->nodes[1]->draw($size * 0.8);
         $imgInf = $this->nodes[1]->image;
-        $baseInf = $this->nodes[1]->verticalBased;
         $widthInf = imagesx($imgInf);
         $heightInf = imagesy($imgInf);
 
         $this->nodes[2]->draw($size);
         $imgExp = $this->nodes[2]->image;
         $baseExp = $this->nodes[2]->verticalBased;
-        $widthExp = imagesx($imgExp);
-        $heightExp = imagesy($imgExp);
 
         $height = $heightLim + $heightInf;
         $width = max($widthInf, $widthLim) + ceil($size / 8);
-        $imgFin = ImageCreate(max($width, 1), max($height, 1));
-        $black = ImageColorAllocate($imgFin, $fontR, $fontG, $fontB);
-        $white = ImageColorAllocate($imgFin, $backR, $backG, $backB);
-        if ($transparent) {
-            $white = imagecolortransparent($imgFin, $white);
-        }
-        ImageFilledRectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
-        ImageCopy($imgFin, $imgLim, ($width - $widthLim) / 2, 0, 0, 0, $widthLim, $heightLim);
-        ImageCopy($imgFin, $imgInf, ($width - $widthInf) / 2, $heightLim, 0, 0, $widthInf, $heightInf);
+        $imgFin = imagecreate(max($width, 1), max($height, 1));
+        $white = $this->helper->getBackColor($imgFin);
+        imagefilledrectangle($imgFin, 0, 0, $width - 1, $height - 1, $white);
+        imagecopy($imgFin, $imgLim, ($width - $widthLim) / 2, 0, 0, 0, $widthLim, $heightLim);
+        imagecopy($imgFin, $imgInf, ($width - $widthInf) / 2, $heightLim, 0, 0, $widthInf, $heightInf);
 
-        $this->image = $this->helper->alinement2($imgFin, $baseLim, $imgExp, $baseExp);
+        $this->image = $this->helper->alignment2($imgFin, $baseLim, $imgExp, $baseExp);
         $this->verticalBased = max($baseLim, $baseExp);
     }
 
@@ -1093,12 +916,16 @@ class MathExpression extends Expression
         }
         $leftBase = imagesy($leftImg) / 2;
         if ($this->nodes[3]->text == "&$") {
-            $rightImg = $this->helper->parenthesis($heightExp, $this->nodes[3]->nodes[0]->text);
+            if(isset($this->nodes[3]->nodes[0])) {
+                $rightImg = $this->helper->parenthesis($heightExp, $this->nodes[3]->nodes[0]->text);
+            } else {
+                $rightImg = $this->helper->parenthesis($heightExp, '');
+            }
         } else {
             $rightImg = $this->helper->parenthesis($heightExp, $this->nodes[3]->text);
         }
         $rightBase = imagesy($rightImg) / 2;
-        $this->image = $this->helper->alinement3($leftImg, $leftBase, $imgExp, $baseExp, $rightImg, $rightBase);
+        $this->image = $this->helper->alignment3($leftImg, $leftBase, $imgExp, $baseExp, $rightImg, $rightBase);
         $this->verticalBased = max($leftBase, $baseExp, $rightBase);
     }
 }

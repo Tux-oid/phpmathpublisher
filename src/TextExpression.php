@@ -24,6 +24,9 @@ class TextExpression extends Expression
 {
     /**
      * Constructor
+     *
+     * @param string $exp
+     * @param Helper $helper
      */
     public function __construct($exp, Helper $helper)
     {

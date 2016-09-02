@@ -1,0 +1,854 @@
+<?php
+use RL\PhpMathPublisher\PhpMathPublisher;
+
+require_once 'vendor/autoload.php';
+
+// we apply the math filter on our own HTML content here
+$html = file_get_contents(__FILE__);
+$html = substr($html, __COMPILER_HALT_OFFSET__);
+if(!is_dir(__DIR__ . '/images')) mkdir(__DIR__ . '/images');
+$pmp = new PhpMathPublisher(__DIR__ . '/images', 'images', 16);
+echo $pmp->mathFilter($html);
+__halt_compiler();
+
+<html>
+<head>
+    <title>PhpMathPublisher examples</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        th, td {
+            width: 50%;
+            text-align: left;
+            font-weight: normal;
+            border: 0;
+        }
+        th {
+            font-family: monospace;
+        }
+        tr:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+<h1>PhpMathPublisher Examples</h1>
+
+<h2>Usual commands</h2>
+<table>
+    <tr>
+        <th>x+y</th>
+        <td>
+            <m>x+y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x-y</th>
+        <td>
+            <m>x-y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x*y</th>
+        <td>
+            <m>x*y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x/y</th>
+        <td>
+            <m>x/y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x^y</th>
+        <td>
+            <m>x^y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x_y</th>
+        <td>
+            <m>x_y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x&#060;&#062;y</th>
+        <td>
+            <m>x<>y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x&#062;y</th>
+        <td>
+            <m>x>y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x&#062;=y</th>
+        <td>
+            <m>x>=y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x&#060;y</th>
+        <td>
+            <m>x<y</m>
+        </td>
+    </tr>
+    <tr>
+        <th>x&#060;=y</th>
+        <td>
+            <m>x<=y</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Parenthesis</h2>
+<table>
+    <tr>
+        <th>visible</th>
+        <td> (x)</td>
+    </tr>
+    <tr>
+        <th>invisible</th>
+        <td> {x}</td>
+    </tr>
+</table>
+
+<h2>Math space</h2>
+<table>
+    <tr>
+        <th>a~b</th>
+        <td>
+            <m>a~b</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Greek letters</h2>
+<table>
+    <tr>
+        <th>alpha</th>
+        <td>
+            <m>alpha</m>
+        </td>
+    </tr>
+    <tr>
+        <th>beta</th>
+        <td>
+            <m>beta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>gamma</th>
+        <td>
+            <m>gamma</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delta</th>
+        <td>
+            <m>delta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>epsilon</th>
+        <td>
+            <m>epsilon</m>
+        </td>
+    </tr>
+    <tr>
+        <th>varepsilon</th>
+        <td>
+            <m>varepsilon</m>
+        </td>
+    </tr>
+    <tr>
+        <th>zeta</th>
+        <td>
+            <m>zeta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>eta</th>
+        <td>
+            <m>eta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>theta</th>
+        <td>
+            <m>theta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>vartheta</th>
+        <td>
+            <m>vartheta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>iota</th>
+        <td>
+            <m>iota</m>
+        </td>
+    </tr>
+    <tr>
+        <th>kappa</th>
+        <td>
+            <m>kappa</m>
+        </td>
+    </tr>
+    <tr>
+        <th>lambda</th>
+        <td>
+            <m>lambda</m>
+        </td>
+    </tr>
+    <tr>
+        <th>mu</th>
+        <td>
+            <m>mu</m>
+        </td>
+    </tr>
+    <tr>
+        <th>nu</th>
+        <td>
+            <m>nu</m>
+        </td>
+    </tr>
+    <tr>
+        <th>xi</th>
+        <td>
+            <m>xi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>pi</th>
+        <td>
+            <m>pi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>varpi</th>
+        <td>
+            <m>varpi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>rho</th>
+        <td>
+            <m>rho</m>
+        </td>
+    </tr>
+    <tr>
+        <th>varrho</th>
+        <td>
+            <m>varrho</m>
+        </td>
+    </tr>
+    <tr>
+        <th>sigma</th>
+        <td>
+            <m>sigma</m>
+        </td>
+    </tr>
+    <tr>
+        <th>varsigma</th>
+        <td>
+            <m>varsigma</m>
+        </td>
+    </tr>
+    <tr>
+        <th>tau</th>
+        <td>
+            <m>tau</m>
+        </td>
+    </tr>
+    <tr>
+        <th>upsilon</th>
+        <td>
+            <m>upsilon</m>
+        </td>
+    </tr>
+    <tr>
+        <th>phi</th>
+        <td>
+            <m>phi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>varphi</th>
+        <td>
+            <m>varphi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>chi</th>
+        <td>
+            <m>chi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>psi</th>
+        <td>
+            <m>psi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>omega</th>
+        <td>
+            <m>omega</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Gamma</th>
+        <td>
+            <m>Gamma</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Lambda</th>
+        <td>
+            <m>Lambda</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Sigma</th>
+        <td>
+            <m>Sigma</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Psi</th>
+        <td>
+            <m>Psi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Delta</th>
+        <td>
+            <m>Delta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Xi</th>
+        <td>
+            <m>Xi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Upsilon</th>
+        <td>
+            <m>Upsilon</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Omega</th>
+        <td>
+            <m>Omega</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Theta</th>
+        <td>
+            <m>Theta</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Pi</th>
+        <td>
+            <m>Pi</m>
+        </td>
+    </tr>
+    <tr>
+        <th>Phi</th>
+        <td>
+            <m>Phi</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Symbols</h2>
+<table>
+    <tr>
+        <th>infty</th>
+        <td>
+            <m>infty</m>
+        </td>
+    </tr>
+    <tr>
+        <th>in</th>
+        <td>
+            <m>in</m>
+        </td>
+    </tr>
+    <tr>
+        <th>notin</th>
+        <td>
+            <m>notin</m>
+        </td>
+    </tr>
+    <tr>
+        <th>forall</th>
+        <td>
+            <m>forall</m>
+        </td>
+    </tr>
+    <tr>
+        <th>exists</th>
+        <td>
+            <m>exists</m>
+        </td>
+    </tr>
+    <tr>
+        <th>notexists</th>
+        <td>
+            <m>notexists</m>
+        </td>
+    </tr>
+    <tr>
+        <th>partial</th>
+        <td>
+            <m>partial</m>
+        </td>
+    </tr>
+    <tr>
+        <th>approx</th>
+        <td>
+            <m>approx</m>
+        </td>
+    </tr>
+    <tr>
+        <th>pm</th>
+        <td>
+            <m>pm</m>
+        </td>
+    </tr>
+    <tr>
+        <th>inter</th>
+        <td>
+            <m>inter</m>
+        </td>
+    </tr>
+    <tr>
+        <th>union</th>
+        <td>
+            <m>union</m>
+        </td>
+    </tr>
+    <tr>
+        <th>ortho</th>
+        <td>
+            <m>ortho</m>
+        </td>
+    </tr>
+    <tr>
+        <th>parallel</th>
+        <td>
+            <m>parallel</m>
+        </td>
+    </tr>
+    <tr>
+        <th>backslash</th>
+        <td>
+            <m>backslash</m>
+        </td>
+    </tr>
+    <tr>
+        <th>prime</th>
+        <td>
+            <m>prime</m>
+        </td>
+    </tr>
+    <tr>
+        <th>wedge</th>
+        <td>
+            <m>wedge</m>
+        </td>
+    </tr>
+    <tr>
+        <th>vert</th>
+        <td>
+            <m>vert</m>
+        </td>
+    </tr>
+    <tr>
+        <th>lbrace</th>
+        <td> {</td>
+    </tr>
+    <tr>
+        <th>rbrace</th>
+        <td> }</td>
+    </tr>
+    <tr>
+        <th>circ</th>
+        <td>
+            <m>circ</m>
+        </td>
+    </tr>
+    <tr>
+        <th>varnothing</th>
+        <td>
+            <m>varnothing</m>
+        </td>
+    </tr>
+    <tr>
+        <th>subset</th>
+        <td>
+            <m>subset</m>
+        </td>
+    </tr>
+    <tr>
+        <th>notsubset</th>
+        <td>
+            <m>notsubset</m>
+        </td>
+    </tr>
+    <tr>
+        <th>cdots</th>
+        <td>
+            <m>cdots</m>
+        </td>
+    </tr>
+    <tr>
+        <th>vdots</th>
+        <td>
+            <m>vdots</m>
+        </td>
+    </tr>
+    <tr>
+        <th>ddots</th>
+        <td>
+            <m>ddots</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Arrows :</h2>
+
+<table>
+    <tr>
+        <th>left</th>
+        <td>
+            <m>left</m>
+        </td>
+    </tr>
+    <tr>
+        <th>right</th>
+        <td>
+            <m>right</m>
+        </td>
+    </tr>
+    <tr>
+        <th>leftright</th>
+        <td>
+            <m>leftright</m>
+        </td>
+    </tr>
+    <tr>
+        <th>doubleleft</th>
+        <td>
+            <m>doubleleft</m>
+        </td>
+    </tr>
+    <tr>
+        <th>doubleright</th>
+        <td>
+            <m>doubleright</m>
+        </td>
+    </tr>
+    <tr>
+        <th>doubleleftright</th>
+        <td>
+            <m>doubleleftright</m>
+        </td>
+    </tr>
+    <tr>
+        <th>nearrow</th>
+        <td>
+            <m>nearrow</m>
+        </td>
+    </tr>
+    <tr>
+        <th>searrow</th>
+        <td>
+            <m>searrow</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Sets</h2>
+<table>
+    <tr>
+        <th>bbR</th>
+        <td>
+            <m>bbR</m>
+        </td>
+    </tr>
+    <tr>
+        <th>bbN</th>
+        <td>
+            <m>bbN</m>
+        </td>
+    </tr>
+    <tr>
+        <th>bbZ</th>
+        <td>
+            <m>bbZ</m>
+        </td>
+    </tr>
+    <tr>
+        <th>bbC</th>
+        <td>
+            <m>bbC</m>
+        </td>
+    </tr>
+</table>
+
+
+<h2>Roots</h2>
+<table>
+    <tr>
+        <th>sqrt{a}</th>
+        <td>
+            <m>sqrt{a}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>root{n}{a}</th>
+        <td>
+            <m>root{n}{a}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Limits</h2>
+<table>
+    <tr>
+        <th>lim{a}{x}</th>
+        <td>
+            <m>lim{a}{x}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Big operators</h2>
+<table>
+    <tr>
+        <th>int{a}{b}{x}</th>
+        <td>
+            <m>int{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>doubleint{a}{b}{x}</th>
+        <td>
+            <m>doubleint{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>tripleint{a}{b}{x}</th>
+        <td>
+            <m>tripleint{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>oint{a}{b}{x}</th>
+        <td>
+            <m>oint{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>sum{a}{b}{x}</th>
+        <td>
+            <m>sum{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>prod{a}{b}{x}</th>
+        <td>
+            <m>prod{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>bigcup{a}{b}{x}</th>
+        <td>
+            <m>bigcup{a}{b}{x}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>bigcap{a}{b}{x}</th>
+        <td>
+            <m>bigcap{a}{b}{x}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Delimiters</h2>
+<table>
+    <tr>
+        <th>delim{[}{x}{]}</th>
+        <td>
+            <m>delim{[}{x}{]}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{]}{x}{]}</th>
+        <td>
+            <m>delim{]}{x}{]}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{[}{x}{[}</th>
+        <td>
+            <m>delim{[}{x}{[}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{]}{x}{[}</th>
+        <td>
+            <m>delim{]}{x}{[}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{lbrace}{x}{rbrace}</th>
+        <td>
+            <m>delim{lbrace}{x}{rbrace}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{|}{x}{|}</th>
+        <td>
+            <m>delim{|}{x}{|}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{vert}{x}{vert}</th>
+        <td>
+            <m>delim{vert}{x}{vert}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Matrix</h2>
+
+<table>
+    <tr>
+        <th colspan="2">matrix{num of lines}{num of columns}{first_element ... last_element}</th>
+    </tr>
+    <tr>
+        <th>matrix{2}{3}{a b c d e f g}</th>
+        <td>
+            <m>matrix{2}{3}{a b c d e f g}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Tabular</h2>
+
+<table>
+    <tr>
+        <th colspan="2">tabular{lines description}{columns description}{first_element ... last_element}</th>
+    </tr>
+
+    <tr>
+        <th>lines description</th>
+        <td> sequence of 1 (draw the horizontal line) or 0 (don\'t draw the horizontal line) - the length of the
+            sequence=num of
+            lines+1
+        </td>
+    </tr>
+    <tr>
+        <th>columns description</th>
+        <td> sequence of 1 (draw the vertical line) or 0 (don\'t draw the vertical line) - the length of the
+            sequence=num of
+            columns+1
+        </td>
+    </tr>
+    <tr>
+        <th>tabular{111}{1111}{a b c d e f g} (2 lines & 3 columns)</th>
+        <td>
+            <m>tabular{111}{1111}{a b c d e f g}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>tabular{1001}{101}{1 2 3 4 5 6} (3 lines & 2 columns):
+        <td>
+            <m>tabular{1001}{101}{1 2 3 4 5 6}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Constructions</h2>
+<table>
+    <tr>
+        <th>vec{express}</th>
+        <td>
+            <m>vec{express}</m>
+        </td>
+    </tr>
+
+    <tr>
+        <th>{express}under{foo}</th>
+        <td>
+            <m>{express}under{foo}</m>
+        </td>
+    </tr>
+
+    <tr>
+        <th>{express}over{foo}</th>
+        <td>
+            <m>{express}over{foo}</m>
+        </td>
+    </tr>
+
+    <tr>
+        <th>overline{express}</th>
+        <td>
+            <m>overline{express}</m>
+        </td>
+    </tr>
+
+    <tr>
+        <th>underline{express}</th>
+        <td>
+            <m>underline{express}</m>
+        </td>
+    </tr>
+
+    <tr>
+        <th>hat{express}</th>
+        <td>
+            <m>hat{express}</m>
+        </td>
+    </tr>
+</table>
+
+<h2>Complex Examples</h2>
+<table>
+    <tr>
+        <th>S(f)(t)=a_{0}+sum{n=1}{+infty}{a_{n} cos(n omega t)+b_{n} sin(n omega t)}</th>
+        <td>
+            <m>S(f)(t)=a_{0}+sum{n=1}{+infty}{a_{n} cos(n omega t)+b_{n} sin(n omega t)}</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{lbrace}{matrix{3}{1}{{3x-5y+z=0} {sqrt{2}x-7y+8z=0} {x-8y+9z=0}}}{ }</th>
+        <td>
+            <m>delim{lbrace}{matrix{3}{1}{{3x-5y+z=0} {sqrt{2}x-7y+8z=0} {x-8y+9z=0}}}{ }</m>
+        </td>
+    </tr>
+    <tr>
+        <th>delim{|}{{1/N} sum{n=1}{N}{gamma(u_n)} - 1/{2 pi} int{0}{2 pi}{gamma(t) dt}}{|} <= epsilon/3</th>
+        <td>
+            <m>delim{|}{{1/N} sum{n=1}{N}{gamma(u_n)} - 1/{2 pi} int{0}{2 pi}{gamma(t) dt}}{|} <= epsilon/3</m>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
